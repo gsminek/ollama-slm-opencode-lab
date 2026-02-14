@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "MS-CEINTL.vscode-language-pack-ja",
+    "ms-vscode-remote.vscode-remote-extensionpack",
+    "ms-vscode.hexeditor",
+    "bierner.markdown-mermaid",
+    "DavidAnson.vscode-markdownlint",
+    "esbenp.prettier-vscode",
+    "GrapeCity.gc-excelviewer",
+    "Gruntfuggly.todo-tree",
+    "oderwat.indent-rainbow",
+    "redhat.vscode-yaml",
+    "rooveterinaryinc.roo-cline",
+    "sidneys1.gitconfig",
+    "TakumiI.markdowntable",
+    "tamasfe.even-better-toml",
+  ],
+  "unwantedRecommendations": [
+    "golang.Go",
+    "ms-vscode.makefile-tools"
+  ]
+}

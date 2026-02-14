@@ -1,0 +1,68 @@
+FROM qwen2.5-coder:latest
+
+PARAMETER temperature 0
+PARAMETER num_ctx 12288
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "</tool_call>"
+
+SYSTEM """You are a file-system agent.
+When you need to use a tool, you MUST wrap the JSON in <tool_call> tags.
+If you do not use <tool_call> tags, the command will fail.
+
+Example:
+<tool_call>
+{"name": "write", "arguments": {"content": "...", "filePath": "..."}}
+</tool_call>"""
+
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{- end }}
+{{- if .Tools }}<|im_start|>system
+# Tools
+You are provided with function signatures within <tools></tools>:
+<tools>
+{{- range .Tools }}
+{"type": "function", "function": {{ .Function }}}
+{{- end }}
+</tools>
+
+To call a tool, you MUST use this exact syntax:
+<tool_call>
+{"name": "function_name", "arguments": {"arg": "value"}}
+</tool_call>
+<|im_end|>
+{{- end }}
+{{- range .Messages }}
+{{- if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{- else if eq .Role "assistant" }}<|im_start|>assistant
+{{- if .Content }}{{ .Content }}{{ end }}
+{{- if .ToolCalls }}<tool_call>
+{{- range .ToolCalls }}{"name": "{{ .Function.Name }}", "arguments": {{ .Function.Arguments }}}{{ end }}
+</tool_call>
+{{- end }}<|im_end|>
+{{- else if eq .Role "tool" }}<|im_start|>user
+<tool_response>
+{{ .Content }}
+</tool_response><|im_end|>
+{{- end }}
+{{- end }}<|im_start|>assistant
+"""
+
+LICENSE """
+   Apache License 2.0
+
+   Copyright 2024 Alibaba Cloud
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License."""
+

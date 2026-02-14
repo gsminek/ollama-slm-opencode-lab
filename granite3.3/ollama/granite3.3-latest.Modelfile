@@ -1,0 +1,37 @@
+FROM granite3.3:latest
+
+PARAMETER temperature 0
+PARAMETER num_ctx 32768
+PARAMETER stop "</tool_call>"
+
+SYSTEM """You are a file-system agent.
+You possess commands: ls, read, write.
+
+To call a tool, you MUST strictly follow this pattern:
+<tool_call>{"name": "COMMAND", "arguments": {}}</tool_call>
+
+Do not provide preamble or conversational text."""
+
+# We break the JSON structure in the template by NOT providing the opening '{'
+# Instead, we just provide the tag. If Ollama still strips it, we will know
+# it is scanning for ANY tag-like or JSON-like structure.
+TEMPLATE """{{- if .System }}<|start_of_role|>system<|end_of_role|>{{ .System }}<|end_of_text|>{{ end }}
+{{- range .Messages }}
+<|start_of_role|>{{ .Role }}<|end_of_role|>{{ .Content }}<|end_of_text|>
+{{- end }}
+<|start_of_role|>assistant<|end_of_role|>
+<tool_call>"""
+
+LICENSE """Copyright 2025 IBM
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License."""

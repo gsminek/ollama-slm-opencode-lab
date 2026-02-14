@@ -1,0 +1,30 @@
+{
+    "[makefile]": {
+        "editor.detectIndentation": false,
+        "editor.insertSpaces": false,
+        "editor.tabSize": 4
+    },
+    "[markdown]": {
+        "editor.tabSize": 4
+    },
+    "editor.detectIndentation": true,
+    "editor.hover.delay": 3000,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.copyRelativePathSeparator": "/",
+    "files.autoGuessEncoding": true,
+    "files.eol": "\r\n",
+    "github.copilot.enable": {
+        "*": false
+    },
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "github.copilot.terminal.enable": false,
+    "markdownlint.config": {
+        "default": true,
+        "MD007": {
+            "indent": 4
+        }
+    },
+    "xml.server.vmargs": "-Djava.net.useSystemProxies=true"
+}
