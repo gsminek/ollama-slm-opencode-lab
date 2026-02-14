@@ -2,6 +2,7 @@
 
 OLLAMA					?= ollama
 OLLAMA_USERNAME			?= $(USERNAME)
+OLLAMA_HOST				?= localhost:11434
 
 MODEL_BASEDIR			?= $(realpath ..)
 MODEL_NAME				?= $(shell basename $(MODEL_BASEDIR))
@@ -15,6 +16,13 @@ FAST_MODEL_CTX_LEN		?= 16384
 AGENT_MODEL_NAME		?= $(BASE_MODEL_NAME)-agent
 AGENT_MODEL_CTX_LEN		?= 65536
 
+TEST_TOOL_PROMPT ?= \
+{ \
+  "model": "$(OLLAMA_USERNAME)/$(AGENT_MODEL_NAME)", \
+  "messages": [{"role": "user", "content": "ls the directory"}], \
+  "stream": false \
+}
+
 .PHONY: ollama.show
 ollama.show:
 	@echo "Model Base dir:      $(MODEL_BASEDIR)"
@@ -22,6 +30,10 @@ ollama.show:
 	@echo "Fast Model Name:     $(FAST_MODEL_NAME)"
 	@echo "Agent Model Name:    $(AGENT_MODEL_NAME)"
 	ollama ls | grep $(MODEL_NAME)
+
+.PHONY: ollama.pull
+ollama.pull:
+	ollama pull $(MODEL_NAME):$(MODEL_TAG)
 
 $(BASE_MODEL_NAME).Modelfile:
 	$(OLLAMA) show $(MODEL_NAME):$(MODEL_TAG) --modelfile \
@@ -44,6 +56,10 @@ $(OLLAMA_USERNAME)/$(FAST_MODEL_NAME): $(FAST_MODEL_NAME).model/$(FAST_MODEL_NAM
 	-ollama stop $@
 	ollama create $@ -f $<
 
+.PHONY: opencode.launch-fast
+opencode.launch-fast:
+	ollama launch opencode --model $(OLLAMA_USERNAME)/$(FAST_MODEL_NAME)
+
 $(AGENT_MODEL_NAME).model:
 	mkdir $@
 
@@ -57,6 +73,14 @@ $(AGENT_MODEL_NAME).model/$(AGENT_MODEL_NAME).Modelfile: $(BASE_MODEL_NAME).Mode
 $(OLLAMA_USERNAME)/$(AGENT_MODEL_NAME): $(AGENT_MODEL_NAME).model/$(AGENT_MODEL_NAME).Modelfile
 	-ollama stop $@
 	ollama create $@ -f $<
+
+.PHONY: opencode.launch-agent
+opencode.launch-agent:
+	ollama launch opencode --model $(OLLAMA_USERNAME)/$(AGENT_MODEL_NAME)
+
+.PHONY: test.tool-agent
+test.tool-agent:
+	curl http://$(OLLAMA_HOST)/api/chat -d '$(TEST_TOOL_PROMPT)'
 
 .PHONY: ollama.init
 ollama.init: \
@@ -75,8 +99,15 @@ ollama.clean:
 .PHONY: ollama.recreate
 ollama.recreate: ollama.clean ollama.create
 
+.PHONY: ollama.stop
+ollama.stop:
+	-ollama stop $(MODEL_NAME):$(MODEL_TAG)
+	-ollama stop $(OLLAMA_USERNAME)/$(FAST_MODEL_NAME)
+	-ollama stop $(OLLAMA_USERNAME)/$(AGENT_MODEL_NAME)
+	@ollama ps | grep $(MODEL_NAME)
+
 .PHONY: ollama.mostlyclean
-ollama.mostlyclean: ollama.clean
+ollama.mostlyclean: ollama.stop ollama.clean
 	-ollama rm $(OLLAMA_USERNAME)/$(FAST_MODEL_NAME)
 	-ollama rm $(OLLAMA_USERNAME)/$(AGENT_MODEL_NAME)
 
@@ -88,6 +119,6 @@ ollama.realclean: ollama.modtlyclean
 code.opencode:
 	code $(USERPROFILE)/.config/opencode/opencode.json
 
-.PHONY: opencode.launch
-opencode.launch:
-	ollama launch opencode --model $(AGENT_MODEL_NAME)
+.PHONY: launch.opencode
+launch.opencode:
+	ollama launch opencode --model $(MODEL_NAME):$(MODEL_TAG)

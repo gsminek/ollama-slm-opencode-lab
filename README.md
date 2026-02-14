@@ -63,12 +63,12 @@ This lab bridges the gap by injecting custom **Modelfiles** and **Jinja2 templat
 
 ## Model Specifications
 
-| Feature             | Granite 3.3         | Qwen 2.5-Coder                |
-| ------------------- | ------------------- | ----------------------------- |
-| **Base Model**      | `granite3.3:latest` | `qwen2.5-coder:latest`        |
-| **Temperature**     | 0 (Deterministic)   | 0 (Deterministic)             |
-| **Default Context** | 32,768              | 12,288                        |
-| **Stop Tokens**     | `<tool_call>`       | `<tool_call>`, `</tool_call>` |
+| Feature             | Granite 3.3         | Qwen 2.5-Coder         |
+| ------------------- | ------------------- | ---------------------- |
+| **Base Model**      | `granite3.3:latest` | `qwen2.5-coder:latest` |
+| **Temperature**     | 0 (Deterministic)   | 0 (Deterministic)      |
+| **Default Context** | 32,768              | 12,288                 |
+| **OpenCode /init**  | ✘ Failed           | ✘ Failed              |
 
 ## Build System
 
